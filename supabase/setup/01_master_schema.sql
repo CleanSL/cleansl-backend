@@ -44,3 +44,25 @@ CREATE TABLE public.collections (
   ai_result TEXT CHECK (ai_result IN ('sorted', 'mixed')), 
   completed_at TIMESTAMPTZ
 );
+
+CREATE TABLE public.gps_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  lane_id UUID REFERENCES public.lanes(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES public.users(id),
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE public.complaints (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  premise_id UUID REFERENCES public.premises(id) ON DELETE CASCADE,
+  description TEXT,
+  photo_url TEXT, 
+  status TEXT CHECK (status IN ('open', 'resolved')) DEFAULT 'open',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Realtime Config
+ALTER PUBLICATION supabase_realtime ADD TABLE collections;
+ALTER PUBLICATION supabase_realtime ADD TABLE complaints;
