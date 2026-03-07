@@ -1,84 +1,27 @@
-Clean SL Backend
+**Clean SL Backend**
 
-Backend services for the Clean SL waste management platform.
-This backend handles authentication, database management, and API communication between the mobile/web applications and the database using Supabase.
+Backend infrastructure for Clean SL, a smart waste management platform that connects residents with waste collection drivers to improve garbage collection efficiency.
 
-Overview
+This backend uses Supabase as the main backend service for authentication, database management, and API access.
 
-Clean SL is a smart waste collection system designed to connect Residents and Drivers for efficient garbage collection scheduling and tracking.
+**Project Overview**
 
-The backend is built using Supabase, which provides:
+Clean SL aims to digitize and streamline the waste collection process by enabling:
 
-PostgreSQL database
+Residents to request waste pickup
 
-Authentication services
+Drivers to manage collection routes
 
-API layer
+Real-time data storage and access
 
-Row Level Security (RLS)
+The backend is powered by Supabase, which provides a fully managed PostgreSQL database, authentication system, and RESTful APIs.
 
-Real-time data support
+**Tech Stack**
 
-Authentication
+Supabase – Backend as a Service
 
-Authentication is handled using Supabase Auth.
+PostgreSQL – Database
 
-Two main user roles are supported:
+Supabase Auth – User authentication
 
-Residents
-
-Drivers
-
-Users register and log in through Supabase authentication using email and password.
-
-After authentication, user details are stored in corresponding tables.
-
-Database Schema
-
-The Supabase database contains the following main tables related to login and user management.
-
-residents
-
-Stores information about users who request waste collection services.
-
-Example fields:
-
-id – UUID (linked with Supabase Auth user id)
-
-name
-
-email
-
-phone_number
-
-address
-
-created_at
-
-drivers
-
-Stores information about drivers responsible for waste collection.
-
-Example fields:
-
-id – UUID (linked with Supabase Auth user id)
-
-name
-
-email
-
-phone_number
-
-vehicle_number
-
-created_at
-
-How Login Works
-
-User signs up using Supabase Auth.
-
-Supabase generates a unique user ID (UUID).
-
-That ID is stored in the residents or drivers table depending on the user type.
-
-The frontend uses the Supabase session token to access protected APIs.
+REST API – Communication between frontend and backend
