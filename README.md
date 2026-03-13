@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CleanSL Backend API 🗑️
 
 Node.js + Express backend for the CleanSL waste management platform.
@@ -87,3 +88,29 @@ The `POST /api/complaints` endpoint auto-assigns priority based on `aiSortedPerc
 | `pickup_schedules` | `zone_id`, `pickup_date`, `eta_start`, `eta_end`, `waste_types` |
 | `complaints` | `user_id`, `photo_url`, `gps_lat`, `gps_lng`, `ai_sorted_percentage`, `priority`, `status` |
 | `notification_logs` | `zone_id`, `type`, `eta_start`, `eta_end`, `recipients_count`, `sent_at` |
+
+**Clean SL Backend**
+
+Backend infrastructure for Clean SL, a smart waste management platform that connects residents with waste collection drivers to improve garbage collection efficiency.
+
+This backend uses Supabase as the main backend service for authentication, database management, and API access.
+
+**Project Overview**
+
+Clean SL aims to digitize and streamline the waste collection process by enabling:
+
+Residents to request waste pickup
+Drivers to manage collection routes
+Real-time data storage and access
+
+The backend is powered by Supabase, which provides a fully managed PostgreSQL database, authentication system, and RESTful APIs.
+
+**Tech Stack**
+
+Supabase – Backend as a Service
+
+PostgreSQL – Database
+
+Supabase Auth – User authentication
+
+REST API – Communication between frontend and backend
