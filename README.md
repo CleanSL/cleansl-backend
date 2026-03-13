@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # CleanSL Backend API 🗑️
 
 Node.js + Express backend for the CleanSL waste management platform.
