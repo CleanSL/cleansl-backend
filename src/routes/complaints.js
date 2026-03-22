@@ -28,38 +28,40 @@ const authMiddleware = require('../middleware/authMiddleware');
  */
 router.post('/', authMiddleware, async (req, res) => {
     try {
-        const { photoUrl, addressId, aiSortedPercentage, complaintText } = req.body;
+        const { photoUrl, addressId, aiSortedPercentage, complaintText, materialLabel, aiConfidence, category } = req.body;
         const residentId = req.user.id;
 
-        if (!photoUrl || !addressId || aiSortedPercentage == null) {
+        if (!photoUrl || aiSortedPercentage == null) {
             return res.status(400).json({
-                error: 'photoUrl, addressId, and aiSortedPercentage are all required.',
+                error: 'photoUrl and aiSortedPercentage are required.',
             });
         }
 
         // ── Triage Logic ─────────────────────────────────────────────────────────
-        // Residents who properly sorted their waste deserve a faster response.
         const percentage = Number(aiSortedPercentage);
         let priorityLevel;
         if (percentage >= 70) {
-            priorityLevel = 'high';    // → top of CMC dashboard, dispatch backup truck
+            priorityLevel = 'high';
         } else if (percentage >= 40) {
-            priorityLevel = 'medium';  // → standard queue
+            priorityLevel = 'medium';
         } else {
-            priorityLevel = 'low';     // → waste not well sorted, lower priority
+            priorityLevel = 'low';
         }
         // ─────────────────────────────────────────────────────────────────────────
 
         const { data: complaint, error: insertError } = await supabase
             .from('complaints')
             .insert({
-                resident_id: residentId,          // ← matches schema: complaints.resident_id
-                address_id: addressId,            // ← matches schema: complaints.address_id
+                resident_id: residentId,
+                address_id: addressId ?? null,           // ← optional
                 photo_url: photoUrl,
                 ai_sorted_percentage: percentage,
-                priority_level: priorityLevel,    // ← matches schema: complaints.priority_level
+                material_label: materialLabel ?? null,   // ← e.g. "plastic", "glass"
+                ai_confidence: aiConfidence ?? null,     // ← raw float e.g. 0.88
+                priority_level: priorityLevel,
                 complaint_text: complaintText ?? null,
-                status: 'pending',                // ← schema default is 'pending'
+                location_name: category ?? null,         // ← category label (Missed Pickup etc.)
+                status: 'pending',
             })
             .select('id')
             .single();
