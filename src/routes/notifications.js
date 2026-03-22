@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabaseClient');
 const authMiddleware = require('../middleware/authMiddleware');
+const admin = require('../config/firebaseAdmin');
 
 /**
  * POST /api/notify/pickup
@@ -64,13 +65,12 @@ router.post('/pickup', authMiddleware, async (req, res) => {
 
         const tokens = profiles.map((p) => p.fcm_token);
 
-        // 3. Send FCM push notification to each token
-        const fcmPayload = {
-            registration_ids: tokens,
+        // 3. Send FCM push notification using Firebase Admin SDK (HTTP v1)
+        const message = {
+            tokens: tokens,
             notification: {
                 title: '🗑️ Pickup Today!',
                 body: `Your garbage will be collected between ${etaStart} – ${etaEnd}. Please place your bins out.`,
-                sound: 'default',
             },
             data: {
                 type: 'PICKUP_ETA',
@@ -78,20 +78,24 @@ router.post('/pickup', authMiddleware, async (req, res) => {
                 etaEnd,
                 zoneOrWard,
             },
+            android: {
+                notification: { sound: 'default' }
+            },
+            apns: {
+                payload: { aps: { sound: 'default' } }
+            }
         };
 
-        const fcmResponse = await fetch('https://fcm.googleapis.com/fcm/send', {
-            method: 'POST',
-            headers: {
-                Authorization: `key=${process.env.FCM_SERVER_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(fcmPayload),
-        });
+        const fcmResponse = await admin.messaging().sendEachForMulticast(message);
 
-        if (!fcmResponse.ok) {
-            const errText = await fcmResponse.text();
-            throw new Error(`FCM error: ${errText}`);
+        if (fcmResponse.failureCount > 0) {
+            console.warn(`[POST /notify/pickup] ${fcmResponse.failureCount} messages failed out of ${tokens.length}`);
+            // Log the first error for debugging
+            fcmResponse.responses.forEach((resp, idx) => {
+                if (!resp.success) {
+                    console.warn(`Token index ${idx} error:`, resp.error);
+                }
+            });
         }
 
         return res.json({
