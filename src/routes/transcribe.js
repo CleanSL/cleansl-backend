@@ -88,20 +88,31 @@ router.post('/', upload.single('audio'), async (req, res) => {
             finalText = "AI transcription failed";
         }
 
-        // 4. LOG TO DATABASE
-        const { error: dbError } = await supabase
-            .from('driver_voice_reports')
-            .insert([{ 
-                file_name: audioFile.originalname, 
-                storage_path: data.path, 
-                transcription: finalText, 
-                status: 'completed'
-            }]);
-
-        if (dbError) {
-            console.error("❌ Database Log Error:", dbError.message);
+        // 4. LOG TO DATABASE (UPDATE collection_tasks instead of INSERT)
+        const taskId = req.body.task_id;
+        
+        if (!taskId) {
+            console.warn("⚠️ No task_id provided. Skipping database update, but audio uploaded successfully.");
         } else {
-            console.log('✅ Database entry created successfully for voice report.');
+            // Get public URL for the uploaded audio
+            const { data: publicUrlData } = supabase.storage
+                .from('driver-audio')
+                .getPublicUrl(`reports/${audioFile.filename}`);
+
+            const { error: dbError } = await supabase
+                .from('collection_tasks')
+                .update({ 
+                    voice_note_url: publicUrlData.publicUrl, 
+                    voice_transcript: finalText,
+                    status: 'not_collected' // Mark issue state directly
+                })
+                .eq('id', taskId);
+
+            if (dbError) {
+                console.error("❌ Database Update Error:", dbError.message);
+            } else {
+                console.log(`✅ Collection task ${taskId} successfully updated with voice report.`);
+            }
         }
         
         // 5. Cleanup local tmp file
