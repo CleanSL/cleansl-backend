@@ -5,6 +5,7 @@ const cors = require('cors');
 const scheduleRoutes = require('./routes/schedules');
 const notificationRoutes = require('./routes/notifications');
 const complaintRoutes = require('./routes/complaints');
+const transcribeRoutes = require('./routes/transcribe');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/notify', notificationRoutes);
 app.use('/api/complaints', complaintRoutes);
+app.use('/transcribe', transcribeRoutes);
 
 // Health check
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'CleanSL API' }));
